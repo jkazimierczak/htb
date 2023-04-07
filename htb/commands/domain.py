@@ -31,9 +31,9 @@ class Domain:
     def state_str(self):
         """Returns a string signaling domain's state."""
         if self.enabled:
-            return f"+ {self}"
+            return f"● {self}"
         else:
-            return f"- {self}"
+            return f"○ {self}"
 
 
 def get_domains() -> Generator[Domain, None, None]:
@@ -83,7 +83,10 @@ def _list(enabled_first: bool):
         domains = get_domains()
 
     for domain in domains:
-        print(domain.state_str())
+        if domain.enabled:
+            click.secho(domain.state_str(), fg="green")
+        else:
+            click.echo(domain.state_str())
 
 
 @cli.command("toggle")
