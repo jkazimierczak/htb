@@ -21,6 +21,9 @@ class Domain:
         self.enabled = self.path.joinpath(PUBLIC_HTML).exists()
         self.disabled = self.path.joinpath(f".{PUBLIC_HTML}").exists()
 
+        if self.enabled and self.disabled:
+            raise ValueError(f"Domain {self.path.name} is both enabled and disabled")
+
     def __str__(self):
         return str(self.path.name)
 
@@ -44,14 +47,41 @@ def get_domains() -> Generator[Domain, None, None]:
         yield domain
 
 
+def get_domains_enabled_first() -> Generator[Domain, None, None]:
+    domains = get_domains()
+
+    disabled_domains = []
+    for domain in domains:
+        if domain.enabled:
+            yield domain
+        else:
+            disabled_domains.append(domain)
+
+    disabled_domains.reverse()
+    while disabled_domains:
+        yield disabled_domains.pop()
+
+
 @click.group("domain")
 def cli():
     pass
 
 
 @cli.command("list")
-def _list():
-    for domain in get_domains():
+@click.option(
+    "--enabled-first",
+    "-e",
+    "enabled_first",
+    help="List enabled domains first.",
+    is_flag=True,
+)
+def _list(enabled_first: bool):
+    if enabled_first:
+        domains = get_domains_enabled_first()
+    else:
+        domains = get_domains()
+
+    for domain in domains:
         print(domain.state_str())
 
 
