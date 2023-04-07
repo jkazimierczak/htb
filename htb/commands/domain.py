@@ -1,4 +1,5 @@
 import shutil
+import sys
 from typing import Generator
 
 import click
@@ -91,6 +92,9 @@ def _list():
         "Select domain/s to toggle visibility of public_html:",
         choices=[questionary.Choice(domain.state_str()) for domain in get_domains()],
     ).ask()
+
+    if not selection:
+        sys.exit(0)
 
     domains = []
     for ans in selection:
