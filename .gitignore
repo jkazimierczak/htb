@@ -1,3 +1,7 @@
+### Custom rules
+domains/
+
+
 ### VisualStudioCode template
 .vscode/*
 !.vscode/settings.json
