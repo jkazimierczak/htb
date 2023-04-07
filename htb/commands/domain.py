@@ -22,7 +22,7 @@ class Domain:
         self.disabled = self.path.joinpath(f".{PUBLIC_HTML}").exists()
 
     def __str__(self):
-        return str(self.path)
+        return str(self.path.name)
 
     def state_str(self):
         """Returns a string signaling domain's state."""
@@ -33,7 +33,7 @@ class Domain:
 
 
 def get_domains() -> Generator[Domain, None, None]:
-    paths = DOMAIN_DIR.iterdir()
+    paths = sorted(DOMAIN_DIR.iterdir())
 
     for path in paths:
         domain = Domain(path)
