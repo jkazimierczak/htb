@@ -25,6 +25,9 @@ class Domain:
         if self.enabled and self.disabled:
             raise ValueError(f"Domain {self.path.name} is both enabled and disabled")
 
+    def __hash__(self):
+        return hash(self.path)
+
     def __str__(self):
         return str(self.path.name)
 
@@ -90,22 +93,32 @@ def _list(enabled_first: bool):
 
 
 @cli.command("toggle")
-def _list():
+def toggle():
+    domains = list(get_domains_enabled_first())
+
     selection = questionary.checkbox(
-        "Select domain/s to toggle visibility of public_html:",
-        choices=[questionary.Choice(domain.state_str()) for domain in get_domains()],
+        "Select domain/s which should remain enabled:",
+        choices=[
+            questionary.Choice(str(domain), value=domain, checked=domain.enabled)
+            for domain in domains
+        ],
     ).ask()
 
     if not selection:
         sys.exit(0)
 
-    domains = []
-    for ans in selection:
-        domain = Domain(Path(ans.lstrip("+- ")))
-        domains.append(domain)
-
-    for domain in domains:
+    def _disable(domain: Domain):
         if domain.enabled:
             shutil.move(domain.path / PUBLIC_HTML, domain.path / f".{PUBLIC_HTML}")
-        else:
+
+    def _enable(domain: Domain):
+        if domain.disabled:
             shutil.move(domain.path / f".{PUBLIC_HTML}", domain.path / PUBLIC_HTML)
+
+    for domain in selection:
+        _enable(domain)
+
+    to_disable = set(domains).difference(set(selection))
+    for domain in to_disable:
+        _disable(domain)
+
