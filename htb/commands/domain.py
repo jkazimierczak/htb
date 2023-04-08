@@ -66,12 +66,12 @@ def get_domains_enabled_first() -> Generator[Domain, None, None]:
         yield disabled_domains.pop()
 
 
-@click.group("domain")
+@click.group("domain", help="Domain management tools.")
 def cli():
     pass
 
 
-@cli.command("list")
+@cli.command("list", help="List available domains.")
 @click.option(
     "--enabled-first",
     "-e",
@@ -92,7 +92,7 @@ def _list(enabled_first: bool):
             click.echo(domain.state_str())
 
 
-@cli.command("toggle")
+@cli.command("toggle", help="Toggle domain(s) by renaming public_html.")
 def toggle():
     domains = list(get_domains_enabled_first())
 
@@ -121,4 +121,3 @@ def toggle():
     to_disable = set(domains).difference(set(selection))
     for domain in to_disable:
         _disable(domain)
-
