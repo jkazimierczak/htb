@@ -1,5 +1,6 @@
 ### Custom rules
 domains/
+.ruff_cache/
 
 
 ### VisualStudioCode template
