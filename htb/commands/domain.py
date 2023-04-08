@@ -39,7 +39,7 @@ class Domain:
             return f"○ {self}"
 
 
-def get_domains() -> Generator[Domain, None, None]:
+def discover_domains() -> Generator[Domain, None, None]:
     paths = sorted(DOMAIN_DIR.iterdir())
 
     for path in paths:
@@ -51,8 +51,8 @@ def get_domains() -> Generator[Domain, None, None]:
         yield domain
 
 
-def get_domains_enabled_first() -> Generator[Domain, None, None]:
-    domains = get_domains()
+def get_domains() -> Generator[Domain, None, None]:
+    domains = discover_domains()
 
     disabled_domains = []
     for domain in domains:
@@ -72,18 +72,8 @@ def cli():
 
 
 @cli.command("list", help="List available domains.")
-@click.option(
-    "--enabled-first",
-    "-e",
-    "enabled_first",
-    help="List enabled domains first.",
-    is_flag=True,
-)
-def _list(enabled_first: bool):
-    if enabled_first:
-        domains = get_domains_enabled_first()
-    else:
-        domains = get_domains()
+def _list():
+    domains = get_domains()
 
     for domain in domains:
         if domain.enabled:
@@ -94,7 +84,7 @@ def _list(enabled_first: bool):
 
 @cli.command("toggle", help="Toggle domain(s) by renaming public_html.")
 def toggle():
-    domains = list(get_domains_enabled_first())
+    domains = list(get_domains())
 
     selection = questionary.checkbox(
         "Select domain/s which should remain enabled:",
