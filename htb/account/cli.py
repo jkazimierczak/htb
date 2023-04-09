@@ -1,3 +1,4 @@
+import functools
 import sys
 
 import click
@@ -5,6 +6,22 @@ import questionary
 
 from .persistence import provide_persistence, inject_persistence, Persistence
 from .refresh import CT8
+
+
+def require_account(f):
+    """Decorator, that ensures that at least one account exists."""
+
+    @functools.wraps(f)
+    def wrapper(*args, **kwargs):
+        accounts = kwargs.get("accounts", None)
+
+        if len(accounts) == 0:
+            print("No accounts found. Add an account first.")
+            sys.exit(0)
+
+        return f(*args, **kwargs)
+
+    return wrapper
 
 
 @click.group("account", help="CT8 account management.")
@@ -42,6 +59,7 @@ def add(accounts: dict):
 
 @cli.command("delete", help="Delete account.")
 @provide_persistence
+@require_account
 def delete(accounts: dict):
     selected = questionary.checkbox(
         "Select account(s) to delete:",
@@ -64,6 +82,7 @@ def delete(accounts: dict):
 
 @cli.command("update", help="Update account password.")
 @provide_persistence
+@require_account
 def update(accounts: dict):
     selected = questionary.select(
         "Select account to modify:",
@@ -80,6 +99,7 @@ def update(accounts: dict):
 
 @cli.command(help="Refresh all accounts.")
 @provide_persistence
+@require_account
 def refresh(accounts: dict):
     ct8 = CT8()
 
