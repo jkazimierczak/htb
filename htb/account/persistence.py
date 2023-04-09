@@ -13,7 +13,7 @@ from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
 
 from htb import STORAGE_DIR
 
-KDF_ITERS = 4_000_000
+KDF_ITERS = 6_000_000
 ACCOUNTS_FILE = STORAGE_DIR / "accounts.storage"
 
 
@@ -36,6 +36,17 @@ def provide_persistence(f):
             return
 
         persistence.save(new_accounts)
+
+    return wrapper
+
+
+def inject_persistence(f):
+    """Inject persistence object instance into a function."""
+
+    @functools.wraps(f)
+    def wrapper(*args, **kwargs):
+        persistence = Persistence()
+        return f(persistence, *args, **kwargs)
 
     return wrapper
 
@@ -90,6 +101,36 @@ class Persistence:
             f.write(data)
 
         print("Encrypted file setup completed.")
+
+    def reinitialize(self):
+        if not ACCOUNTS_FILE.exists():
+            conf = questionary.confirm(
+                "Storage file doesn't exists. Create new one?"
+            ).ask()
+            if not conf:
+                sys.exit(0)
+            return self.setup()
+
+        print(
+            "This will remove your credentials file and create a new one.",
+            "All stored credentials will be lost.",
+            sep=os.linesep,
+        )
+        try:
+            ans = questionary.confirm("Do you want to continue?").unsafe_ask()
+            ans_conf = questionary.confirm("Are you sure?").unsafe_ask()
+        except KeyboardInterrupt:
+            sys.exit(0)
+
+        if ans and ans_conf:
+            try:
+                ACCOUNTS_FILE.unlink()
+            except PermissionError as err:
+                print(err)
+                sys.exit(-1)
+            print("Credentials file removed.")
+
+        self.setup()
 
     def load(self) -> dict:
         """Load credentials from persistent encrypted storage."""

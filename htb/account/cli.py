@@ -3,7 +3,7 @@ import sys
 import click
 import questionary
 
-from htb.account.persistence import provide_persistence
+from .persistence import provide_persistence, inject_persistence, Persistence
 
 
 @click.group("account", help="CT8 account management.")
@@ -14,6 +14,12 @@ def cli():
 @cli.command(help="Refresh accounts.")
 def refresh():
     pass
+
+
+@cli.command(help="Reinitialize storage file.")
+@inject_persistence
+def reinitialize(persistence: Persistence):
+    persistence.reinitialize()
 
 
 @cli.command(help="Add account.")
