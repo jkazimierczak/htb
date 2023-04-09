@@ -64,6 +64,9 @@ class Persistence:
         try:
             while True:
                 password: str = questionary.password("File password:").unsafe_ask()
+                if ACCOUNTS_FILE.exists():
+                    break
+
                 if not password:
                     print("Password cannot be empty.")
                     continue
