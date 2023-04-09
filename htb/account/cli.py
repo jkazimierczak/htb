@@ -65,3 +65,19 @@ def delete(accounts):
         accounts.pop(account)
 
     return accounts
+
+
+@cli.command("update", help="Update account password.")
+@provide_persistence
+def update(accounts):
+    selected = questionary.select(
+        "Select account to modify:",
+        choices=[account for account in accounts],
+    ).ask()
+    if not selected:
+        sys.exit(0)
+
+    new_password = questionary.password("New password: ").ask()
+
+    accounts.update({selected: new_password})
+    return accounts
