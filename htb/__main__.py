@@ -1,6 +1,6 @@
 import click
 
-from .commands import domain, account
+from htb import domain, account
 
 
 @click.group()

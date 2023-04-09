@@ -10,7 +10,8 @@ from dataclasses import dataclass
 
 import questionary
 
-DOMAIN_DIR = Path().home().joinpath("domains")
+# DOMAIN_DIR = Path().home().joinpath("domains")
+DOMAIN_DIR = Path().cwd().joinpath("domains")
 PUBLIC_HTML = "public_html"
 
 
