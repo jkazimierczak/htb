@@ -2,6 +2,7 @@ import sys
 
 import click
 import questionary
+from questionary import Choice
 
 from .persistence import provide_persistence, inject_persistence, Persistence
 
@@ -41,4 +42,26 @@ def add(accounts: dict):
         sys.exit(0)
 
     accounts.update({username: password})
+    return accounts
+
+
+@cli.command("delete", help="Delete account.")
+@provide_persistence
+def delete(accounts):
+    selected = questionary.checkbox(
+        "Select account(s) to delete:",
+        choices=[account for account in accounts],
+    ).ask()
+    if not selected:
+        sys.exit(0)
+
+    conf = questionary.confirm(
+        "Are you sure you want to remove selected accounts?"
+    ).ask()
+    if not conf:
+        sys.exit(0)
+
+    for account in selected:
+        accounts.pop(account)
+
     return accounts
