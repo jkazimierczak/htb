@@ -2,18 +2,13 @@ import sys
 
 import click
 import questionary
-from questionary import Choice
 
 from .persistence import provide_persistence, inject_persistence, Persistence
+from .refresh import CT8
 
 
 @click.group("account", help="CT8 account management.")
 def cli():
-    pass
-
-
-@cli.command(help="Refresh accounts.")
-def refresh():
     pass
 
 
@@ -81,3 +76,12 @@ def update(accounts: dict):
 
     accounts.update({selected: new_password})
     return accounts
+
+
+@cli.command(help="Refresh all accounts.")
+@provide_persistence
+def refresh(accounts: dict):
+    ct8 = CT8()
+
+    for username, password in accounts.items():
+        ct8.login(username, password)
