@@ -47,7 +47,7 @@ def add(accounts: dict):
 
 @cli.command("delete", help="Delete account.")
 @provide_persistence
-def delete(accounts):
+def delete(accounts: dict):
     selected = questionary.checkbox(
         "Select account(s) to delete:",
         choices=[account for account in accounts],
@@ -69,7 +69,7 @@ def delete(accounts):
 
 @cli.command("update", help="Update account password.")
 @provide_persistence
-def update(accounts):
+def update(accounts: dict):
     selected = questionary.select(
         "Select account to modify:",
         choices=[account for account in accounts],
